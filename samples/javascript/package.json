@@ -1,0 +1,8 @@
+{
+  "name": "dca-model-gateway-samples",
+  "private": true,
+  "type": "module",
+  "description": "DCA Model Gateway samples for Node.js",
+  "scripts": { "chat": "node chat.mjs", "claude": "node claude.mjs" },
+  "dependencies": { "openai": "^7.34.0", "@anthropic-ai/sdk": "^0.135.0" }
+}

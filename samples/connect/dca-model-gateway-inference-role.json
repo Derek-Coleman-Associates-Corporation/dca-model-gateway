@@ -1,0 +1,10 @@
+{
+  "Name": "DCA Model Gateway Inference",
+  "IsCustom": true,
+  "Description": "Lets DCA Model Gateway call model deployments on Azure AI Foundry, Azure AI Services and Azure OpenAI resources. Data plane only: it cannot list keys, read connection secrets, or read or change resource settings.",
+  "Actions": [],
+  "NotActions": [],
+  "DataActions": ["Microsoft.CognitiveServices/*"],
+  "NotDataActions": [],
+  "AssignableScopes": ["/subscriptions/<your-subscription-id>"]
+}

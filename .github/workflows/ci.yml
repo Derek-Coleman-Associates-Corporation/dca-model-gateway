@@ -1,0 +1,46 @@
+name: samples and docs
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+      - name: Python samples compile
+        run: python -m py_compile samples/python/*.py
+      - name: Node.js samples parse
+        run: for f in samples/javascript/*.mjs; do node --check "$f"; done
+      - name: Shell samples parse
+        run: for f in samples/curl/*.sh samples/connect/*.sh; do bash -n "$f"; done
+      - name: Role definition is valid JSON without management actions
+        run: python -c "import json; r=json.load(open('samples/connect/dca-model-gateway-inference-role.json')); assert r['Actions']==[] and r['DataActions']==['Microsoft.CognitiveServices/*'], r"
+      - name: Relative links resolve
+        run: |
+          python - <<'PY'
+          import pathlib, re, sys
+          bad = []
+          for md in pathlib.Path(".").rglob("*.md"):
+              if "node_modules" in md.parts:
+                  continue
+              for target in re.findall(r"\]\(([^)]+)\)", md.read_text()):
+                  if target.startswith(("http://", "https://", "mailto:", "#")):
+                      continue
+                  path = (md.parent / target.split("#")[0]).resolve()
+                  if not path.exists():
+                      bad.append(f"{md}: {target}")
+          print("\n".join(bad) or "all relative links resolve")
+          sys.exit(1 if bad else 0)
+          PY

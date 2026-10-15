@@ -11,5 +11,5 @@ We acknowledge every report and keep you informed until the issue is resolved.
 ## If your gateway key leaks
 
 Choose **Regenerate gateway key** on the subscription's menu at <https://saas.dcassociatesgroup.com>. The old key stops
-working immediately. You can also remove the DCA Model Gateway Connector's role on your Foundry resource to block all access
-from the gateway until you reconnect.
+working immediately. To stop all calls to your Foundry at once, select **Disconnect** on the Connect your Foundry page. Removing
+the DCA Model Gateway Connector's role on your resource blocks it in Azure as well, once Azure applies the change.

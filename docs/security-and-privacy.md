@@ -7,8 +7,9 @@
 - **The tenant is fixed.** A connection always uses the Microsoft Entra tenant that owns the subscription, taken from your
   sign-in, never typed in. A token issued by your tenant cannot open another organization's resources, and theirs cannot
   open yours.
-- **Revoke at any time.** Remove the connector's role assignment, or delete its enterprise application. No request reaches
-  your deployments after that.
+- **Stop at any time.** **Disconnect** on the Connect your Foundry page stops the gateway immediately. Removing the
+  connector's role assignment, or its enterprise application, blocks it in Azure too, once Azure applies the change; that
+  can take several minutes or longer.
 
 ### Which role to grant
 

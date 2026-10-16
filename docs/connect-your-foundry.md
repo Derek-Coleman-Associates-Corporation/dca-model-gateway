@@ -110,11 +110,13 @@ The page validates what you type. It accepts only the three Azure AI host forms,
 ## Change, disconnect, revoke
 
 - **Change the mapping**: edit the page and select **Save and test**. It takes effect at once.
-- **Disconnect**: select **Disconnect**. Requests with your key are refused with `409 foundry_not_connected` from then on.
-- **Revoke access in Azure**: remove the connector's role assignment, or delete the *DCA Model Gateway Connector* enterprise
-  application from your tenant. The gateway then receives `401` from your resource, or cannot sign in at all. Azure applies
-  these changes with a delay: a removed role assignment took more than 20 minutes in our tests. For an immediate stop, select
-  **Disconnect** as well.
+- **Disconnect**: select **Disconnect**. The gateway stops calling your resource at once, and requests with your key are
+  refused with `409 foundry_not_connected`.
+- **Block the connector in your tenant**: disable or delete the *DCA Model Gateway Connector* enterprise application in
+  Microsoft Entra ID. The gateway can no longer sign in to your tenant. Calls stop within five minutes, when its current token
+  leaves the gateway's cache, and then fail with `502 foundry_auth_failed`.
+- **Remove the role assignment**: this ends access too, but slowly. In our tests Azure kept honouring a removed role for more
+  than two and a half hours on a Foundry resource. When access must stop now, use one of the two options above as well.
 
 ## More than one resource
 

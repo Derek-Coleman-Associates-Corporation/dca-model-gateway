@@ -7,9 +7,9 @@
 - **The tenant is fixed.** A connection always uses the Microsoft Entra tenant that owns the subscription, taken from your
   sign-in, never typed in. A token issued by your tenant cannot open another organization's resources, and theirs cannot
   open yours.
-- **Stop at any time.** **Disconnect** on the Connect your Foundry page stops the gateway immediately. Removing the
-  connector's role assignment, or its enterprise application, blocks it in Azure too, once Azure applies the change; that
-  can take several minutes or longer.
+- **Stop at any time.** **Disconnect** on the Connect your Foundry page stops the gateway at once. Disabling or deleting the
+  connector's enterprise application in your tenant stops it within five minutes. Removing its role assignment also ends
+  access, but Azure can take hours to apply that: we measured more than two and a half hours.
 
 ### Which role to grant
 

@@ -26,7 +26,8 @@ Administrator. See [Connect your Foundry](connect-your-foundry.md#step-2-give-th
 
 | Data | Where | Kept |
 |---|---|---|
-| Your connection: tenant ID, endpoint, deployment names, last test result | Azure Storage, East US, encrypted at rest, Entra-only access | While the subscription is active; deleted within an hour of cancellation |
+| Your connection: tenant ID, endpoint, deployment names, per-key budgets, last test result | Azure Storage, East US, encrypted at rest, Entra-only access | While the subscription is active; deleted within an hour of cancellation |
+| Key names you choose | Azure API Management, East US | With the key; deleted on an erasure request |
 | Per-request telemetry: key ID, route, deployment name, data boundary, token counts, time | Azure Monitor, United States | 90 days |
 | Usage reported to Microsoft Marketplace for billing | Microsoft Marketplace, plus our billing audit records | As required for invoicing and audit |
 | Account records: subscription and plan, the signed-in user's name, e-mail address and Microsoft Entra IDs, consent records | Azure SQL, United States | See the privacy notice |
@@ -41,11 +42,14 @@ inference runs in your deployment, in the region or data zone of that deployment
 together with US data-zone deployments to keep processing in the United States; see
 [Data boundary](api-reference.md#data-boundary).
 
-## Your gateway key
+## Your gateway keys
 
-- Treat it like a password. Store it in a secret manager and never put it in client-side code.
-- If it leaks, choose **Regenerate gateway key**. The old key stops working immediately.
-- Support never asks for your key. Send your Marketplace subscription ID instead.
+- Treat each key like a password. Store it in a secret manager and never put it in client-side code.
+- Give every customer or application its own key on the [Tenant keys](tenant-keys.md) page, so you can cut one off
+  without touching the others.
+- If a key leaks, select **Regenerate** next to it. The old key stops working immediately. **Revoke** ends an additional
+  key for good.
+- Support never asks for your keys. Send your Marketplace subscription ID instead.
 
 ## More
 

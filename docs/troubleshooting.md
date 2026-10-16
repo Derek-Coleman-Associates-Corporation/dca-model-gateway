@@ -44,18 +44,24 @@ Map the route, or the US column, on the Connect your Foundry page.
 
 ## 429 or 403 without an `error.code`
 
-You reached this key's per-minute (429) or monthly (403) token limit. Wait `retry-after` seconds, or see
-[Limits and billing](limits-and-billing.md). A 429 *with* your deployment's own error body comes from your deployment's
+You reached this key's per-minute (429) or monthly (403) token limit, or the monthly budget you set for the key. Wait
+`retry-after` seconds, check the key's budget on [Tenant keys](tenant-keys.md), or see [Limits and billing](limits-and-billing.md). A 429 *with* your deployment's own error body comes from your deployment's
 quota in Azure.
 
 ## 401 `Access denied due to invalid subscription key`
 
-The key is wrong, was regenerated, or the subscription is cancelled. Copy the current key, or choose **Regenerate gateway key**.
+The key is wrong, was regenerated or revoked, or the subscription is cancelled. Copy the current key, or regenerate it on the
+Subscriptions or Tenant keys page.
 
 ## My subscription shows Pending activation
 
-Our team confirms new subscriptions before billing starts. You can connect your Foundry in the meantime. The key works as
-soon as the status is **Subscribed**.
+Activation did not finish. In the Azure portal, open the SaaS resource, select **Configure account now** and then
+**Activate**. If it still shows Pending activation, contact support with your Marketplace subscription ID.
+
+## I cannot add a key
+
+Keys can be added once the subscription shows **Subscribed**, up to the plan's number of keys (revoked keys do not count).
+See [Limits and billing](limits-and-billing.md#keys-per-subscription).
 
 ## The OpenAI SDK returns 401 although the key is right
 

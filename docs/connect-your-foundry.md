@@ -110,8 +110,8 @@ The page validates what you type. It accepts only the three Azure AI host forms,
 ## Change, disconnect, revoke
 
 - **Change the mapping**: edit the page and select **Save and test**. It takes effect at once.
-- **Disconnect**: select **Disconnect**. The gateway stops calling your resource at once, and requests with your key are
-  refused with `409 foundry_not_connected`.
+- **Disconnect**: select **Disconnect**. The gateway stops calling your resource at once, and requests with any of your keys
+  are refused with `409 foundry_not_connected`. Your settings are kept: select **Reconnect** to resume with the same mapping.
 - **Block the connector in your tenant**: disable or delete the *DCA Model Gateway Connector* enterprise application in
   Microsoft Entra ID. The gateway can no longer sign in to your tenant. Calls stop within five minutes, when its current token
   leaves the gateway's cache, and then fail with `502 foundry_auth_failed`.

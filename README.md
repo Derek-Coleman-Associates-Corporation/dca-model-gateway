@@ -11,7 +11,11 @@ Azure subscription**. DCA Model Gateway is a Microsoft Marketplace SaaS offer fr
   gateway uses the deployment you mapped to that route.
 - **Data boundary per request.** `x-dca-data-boundary: us` restricts a request to the deployments you declared as United
   States data zone deployments. Anything else is refused, never rerouted.
-- **Token budgets.** Each gateway key has a per-minute token rate and a monthly token cap, and every response reports what is left.
+- **A key per tenant.** Issue up to 25 keys (Team) or 100 keys (Partner Edition), one for each of your customers or
+  applications. Each key has its own token budget and usage, and you can revoke one without touching the others.
+- **Token budgets.** Each gateway key has a per-minute token rate, a monthly token cap and, if you set one, your own monthly
+  budget. Every response reports what is left.
+- **Usage you can rebill.** Tokens per key, deployment, route and day in the portal, downloadable as CSV.
 - **Metered on your Azure invoice.** Routed tokens are counted per million, by model tier, through Microsoft Marketplace.
 - **No content stored.** The gateway records token counts, routes and deployment names. It never stores prompts or responses.
 
@@ -125,6 +129,7 @@ Runnable versions of these, plus streaming, the Responses API, embeddings, route
 | Topic | |
 |---|---|
 | [Getting started](docs/getting-started.md) | Subscribe, activate, get and rotate your key |
+| [Tenant keys](docs/tenant-keys.md) | A key per customer or application, per-key budgets, usage and CSV export |
 | [Connect your Foundry](docs/connect-your-foundry.md) | The connector, the role, the endpoint and the route map |
 | [API reference](docs/api-reference.md) | Endpoints, authentication, how a deployment is chosen, routes, data boundary, headers |
 | [Errors](docs/errors.md) | Every status and error code, and what to do |

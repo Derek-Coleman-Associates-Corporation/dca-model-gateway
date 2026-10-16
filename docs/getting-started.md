@@ -15,30 +15,35 @@
 2. After the purchase, select **Configure account now** in the Azure portal. It opens the activation page at
    `https://saas.dcassociatesgroup.com`.
 3. Sign in with your work account. The page shows the subscription, offer, plan and your tenant.
-4. Accept the privacy notice, optionally tell us your organization's country, and select **Subscribe**.
+4. Accept the privacy notice, optionally tell us your organization's country, and select **Activate**.
 
-If the subscription then shows **Pending activation**, our team confirms new subscriptions before billing starts. You are not
-billed until it is activated. Connect your Foundry meanwhile (step 2); your key works as soon as the status is **Subscribed**.
+The subscription shows **Subscribed**, and Microsoft starts billing the plan from that moment.
 
 ## 2. Connect your Foundry
 
 Follow [Connect your Foundry](connect-your-foundry.md). In short: add the *DCA Model Gateway Connector* to your tenant, give it
-the **Cognitive Services User** role on your Foundry resource, then enter your endpoint and deployments on the
-**Connect your Foundry** page and select **Save and test**.
+the **DCA Model Gateway Inference** custom role (or the built-in **Cognitive Services User** role) on your Foundry resource, then
+enter your endpoint and deployments on the **Connect your Foundry** page and select **Save and test**.
 
 Until a Foundry is connected, every request with your key is refused with `409 foundry_not_connected` and nothing is
 forwarded anywhere.
 
 ## 3. Get your gateway key
 
+When activation finishes, the page shows your key **once**. Store it in your secret manager. If you missed it:
+
 1. Open [saas.dcassociatesgroup.com](https://saas.dcassociatesgroup.com) and select **Subscriptions**.
 2. Open the subscription's menu and choose **Regenerate gateway key**.
-3. Copy the key from the banner. It is shown **once**; store it in your secret manager.
+3. Copy the new key from the banner. It is also shown only once.
 
-Your endpoint is `https://ai-gateway-east-us1.azure-api.net/gateway`. Each subscription has one gateway key.
+Your endpoint is `https://ai-gateway-east-us1.azure-api.net/gateway`. This first key is the subscription's *Default* key.
 
-**Rotating the key.** Choose **Regenerate gateway key** again. The new key works immediately and the previous key stops
-working at the same moment, so update your applications first if you need a seamless switch.
+**More keys.** Choose **Tenant keys** in the same menu to give each of your own customers or applications its own key, with
+its own budget and usage. See [Tenant keys](tenant-keys.md).
+
+**Rotating a key.** Choose **Regenerate gateway key** again (or **Regenerate** next to any key on the Tenant keys page). The
+new key works immediately and the previous key stops working at the same moment, so update your applications first if you
+need a seamless switch.
 
 ## 4. Send your first request
 
@@ -62,7 +67,7 @@ Next: [API reference](api-reference.md) for routes, the data boundary and every 
 ## Changing plan or cancelling
 
 - **Change plan**: on [saas.dcassociatesgroup.com](https://saas.dcassociatesgroup.com) open the subscription's menu, or use the
-  SaaS resource in the Azure portal. Your key and your Foundry connection stay the same; the new plan's limits apply at once.
-- **Cancel**: in the Azure portal, open the SaaS resource and cancel the subscription. The key stops working, and the
+  SaaS resource in the Azure portal. Your keys and your Foundry connection stay the same; the new plan's limits apply at once.
+- **Cancel**: in the Azure portal, open the SaaS resource and cancel the subscription. All of its keys stop working, and the
   Foundry connection is deleted within an hour. Remove the connector's role assignment in your Azure subscription as well if
   you no longer need it.

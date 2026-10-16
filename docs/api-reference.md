@@ -81,6 +81,7 @@ deployments.
 | `x-dca-processing-scope` | `customer-deployment` | Processing happened in your deployment, under its own region or data zone |
 | `x-dca-remaining-tokens` | `59870` | Tokens left in the current minute for this key |
 | `x-dca-remaining-quota-tokens` | `499999824` | Tokens left this calendar month for this key |
+| `x-dca-budget-remaining-tokens` | `99999976` | Tokens left this calendar month in the budget you set for this key (only on keys with a budget) |
 | `x-dca-tokens-consumed` | `24` | Prompt and completion tokens of this request |
 | `retry-after` | `12` | Seconds to wait, on `429` and `403` limit responses |
 

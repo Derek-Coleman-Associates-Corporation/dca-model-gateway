@@ -2,7 +2,8 @@
 
 ## Per-key limits
 
-Each gateway key has two limits. They protect your Foundry and your bill from runaway clients.
+Each gateway key has two limits. They protect your Foundry and your bill from runaway clients. Every key of a subscription
+has its own counters, so one busy tenant cannot use up another tenant's allowance.
 
 | Plan | Tokens per minute | Tokens per calendar month |
 |---|---|---|
@@ -14,7 +15,21 @@ Each gateway key has two limits. They protect your Foundry and your bill from ru
 - Over the monthly cap, the gateway answers `403` until the next calendar month (UTC).
 - Every response reports what is left: `x-dca-remaining-tokens` for this minute and `x-dca-remaining-quota-tokens` for this month.
 
+**Your own monthly budget per key.** On the [Tenant keys](tenant-keys.md) page you can give any key a lower monthly budget
+(at least 1,000 tokens), for example the amount a customer pays you for. Over its budget the key is refused with `403` until
+the next calendar month (UTC), while your other keys keep working. Responses on a key with a budget also carry
+`x-dca-budget-remaining-tokens`. The plan's monthly cap above still applies.
+
 Your deployments keep their own quotas in Azure as well. Whichever limit is lower applies first.
+
+## Keys per subscription
+
+| Plan | Keys (the Default key included) | Active tenants included each month |
+|---|---|---|
+| Team | 25 | 5 |
+| Partner Edition | 100 | 25 |
+
+Revoked keys do not count towards the number of keys.
 
 ## What you pay
 
@@ -27,8 +42,8 @@ You receive two separate charges:
 
 | Plan | Monthly fee | Included each month | Beyond the included amount |
 |---|---|---|---|
-| Team | US$199 | 200M open-weight and 25M frontier routed tokens | US$0.25 per 1M open-weight, US$0.60 per 1M frontier |
-| Partner Edition | US$499 | 1,000M open-weight and 100M frontier routed tokens | Same rates |
+| Team | US$199 | 200M open-weight and 25M frontier routed tokens; 5 active tenants | US$0.25 per 1M open-weight, US$0.60 per 1M frontier; US$15 per additional active tenant |
+| Partner Edition | US$499 | 1,000M open-weight and 100M frontier routed tokens; 25 active tenants | Same rates |
 
 Prices as listed on 2026-10-15. The [Marketplace listing](https://azuremarketplace.microsoft.com/en-us/marketplace/apps/dcassociatesgroupinc.dca-model-gateway?tab=Overview)
 is authoritative. Taxes and currency follow your Azure billing account.
@@ -41,11 +56,15 @@ DeepSeek, gpt-oss, Mistral, Phi, Qwen, Gemma); everything else, including GPT an
 gateway takes the model name each deployment reported in your last connection test, shown in the **Billing tier** column. For
 a deployment the test has not called, it uses the deployment's name.
 
-**Active tenants.** The plan lists an *active tenants* meter. Each subscription has one gateway key, and this meter is not
-charged.
+**Active tenants.** An active tenant is a key, the Default key included, that routed at least one token in the
+subscription's monthly billing period. Keys that are never used are free. Beyond the plan's included number, each
+additional active tenant is charged once for that billing period, however much it routes. The Tenant keys page shows how
+many keys are active in the current period.
 
 ## Where to see usage
 
 - Per request: the `x-dca-tokens-consumed` response header.
+- Per key: the [Tenant keys](tenant-keys.md) page shows each key's tokens for the month you choose, and **Download usage
+  (CSV)** gives tokens per day, key, deployment, billing tier, route and data boundary, for rebilling your own customers.
 - Per month: the Marketplace charges for DCA Model Gateway in Azure Cost Management and on your invoice, and your
   deployments' own metrics in Azure Monitor.

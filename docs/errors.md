@@ -18,6 +18,8 @@ forwarded** to any model. The Anthropic API wraps the same codes in Anthropic's 
 | 403 | (quota) | This key used its monthly token cap, or the monthly budget you set for it on the Tenant keys page | Resets on the 1st of the month (UTC). Raise or remove the key's budget on [Tenant keys](tenant-keys.md), or contact support to discuss a larger plan |
 | 502 | `foundry_auth_failed` + `aadsts` | Your Microsoft Entra tenant refused to issue the connector a token | See the table below |
 | 502 | `byo_config_invalid` | The saved connection is incomplete | Open Connect your Foundry and select **Save and test** again |
+| 502 | `vertex_auth_failed` + `google` | Google refused the workload identity federation exchange for your Vertex AI project | See [Connect your Vertex AI](connect-your-vertex-ai.md#errors-you-may-see) |
+| 422 | `not_supported_by_provider` | Responses API, embeddings or the Anthropic API on a Google Vertex AI connection | Use chat completions |
 | 503 | `byo_config_unavailable`, `gateway_identity_unavailable` | A temporary problem on our side | Retry with backoff; if it persists, contact support |
 
 ### `foundry_auth_failed`: the `aadsts` code

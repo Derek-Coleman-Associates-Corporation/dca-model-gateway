@@ -1,7 +1,7 @@
 # DCA Model Gateway
 
-One OpenAI- and Anthropic-compatible endpoint in front of the Azure AI Foundry deployments **you already run in your own
-Azure subscription**. DCA Model Gateway is a Microsoft Marketplace SaaS offer from Derek Coleman & Associates Inc.
+One OpenAI- and Anthropic-compatible endpoint in front of the models **you already run in your own cloud**: Azure AI
+Foundry deployments in your Azure subscription, or Google Vertex AI in your Google Cloud project. DCA Model Gateway is a Microsoft Marketplace SaaS offer from Derek Coleman & Associates Inc.
 
 - **Your Foundry, your bill.** Every request runs on your own deployment. Microsoft bills the model usage to your Azure
   subscription; the gateway never resells model access.
@@ -131,6 +131,7 @@ Runnable versions of these, plus streaming, the Responses API, embeddings, route
 | [Getting started](docs/getting-started.md) | Subscribe, activate, get and rotate your key |
 | [Tenant keys](docs/tenant-keys.md) | A key per customer or application, per-key budgets, usage and CSV export |
 | [Connect your Foundry](docs/connect-your-foundry.md) | The connector, the role, the endpoint and the route map |
+| [Connect your Vertex AI](docs/connect-your-vertex-ai.md) | Google Vertex AI in your own project: workload identity federation, models, data boundary |
 | [API reference](docs/api-reference.md) | Endpoints, authentication, how a deployment is chosen, routes, data boundary, headers |
 | [Errors](docs/errors.md) | Every status and error code, and what to do |
 | [Limits and billing](docs/limits-and-billing.md) | Per-key limits, plans, meters and tiers |

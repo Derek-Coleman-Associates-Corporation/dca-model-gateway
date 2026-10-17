@@ -3,10 +3,11 @@
 One OpenAI- and Anthropic-compatible endpoint in front of the models **you already run in your own cloud**: Azure AI
 Foundry deployments in your Azure subscription, or Google Vertex AI in your Google Cloud project. DCA Model Gateway is a Microsoft Marketplace SaaS offer from Derek Coleman & Associates Inc.
 
-- **Your Foundry, your bill.** Every request runs on your own deployment. Microsoft bills the model usage to your Azure
-  subscription; the gateway never resells model access.
-- **Keyless connection.** The gateway signs in to your Microsoft Entra tenant as the *DCA Model Gateway Connector* and can
-  use only the Azure role you grant it. No Foundry keys are shared or stored.
+- **Your models, your bill.** Every request runs on your own deployment: Microsoft bills Azure AI Foundry usage to your
+  Azure subscription, Google bills Vertex AI usage to your Google Cloud billing account. The gateway never resells model access.
+- **Keyless connection.** For Azure AI Foundry, the gateway signs in to your Microsoft Entra tenant as the *DCA Model
+  Gateway Connector* and can use only the Azure role you grant it. For Google Vertex AI, it exchanges its own identity for a
+  short-lived token of a workload identity pool in your project, limited to the role you grant. No keys are shared or stored.
 - **Routes instead of model names.** Send `x-dca-route: cheap`, `oss-only`, `auto`, `reasoning`, `code` or `frontier` and the
   gateway uses the deployment you mapped to that route.
 - **Data boundary per request.** `x-dca-data-boundary: us` restricts a request to the deployments you declared as United

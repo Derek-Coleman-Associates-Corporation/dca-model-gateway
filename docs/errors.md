@@ -38,6 +38,7 @@ When the gateway reached your resource, your resource's own answer is returned u
 | Status | Typical `error.code` | Meaning | What to do |
 |---|---|---|---|
 | 401 | `PermissionDenied` | The connector has no role on this resource, or the assignment has not applied yet | Step 2 of [Connect your Foundry](connect-your-foundry.md); allow up to 10 minutes |
+| 400 | `Tenant provided in token does not match resource token` | The resource belongs to a different Microsoft Entra tenant than the one that owns your subscription | Connect a resource in your own tenant. The gateway always signs in to the tenant that bought the subscription |
 | 403 | | Your resource's network rules block public traffic | Allow public network access on the resource |
 | 404 | `DeploymentNotFound` | No deployment with that name | Check the name in `model` or in your mapping |
 | 429 | | Your deployment's own quota (tokens or requests per minute) | Wait `retry-after`, or raise the deployment's quota in Azure |

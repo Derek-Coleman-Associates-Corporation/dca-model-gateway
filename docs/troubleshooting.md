@@ -42,6 +42,12 @@ are the *deployment* names, not the model names.
 
 Map the route, or the US column, on the Connect your Foundry page.
 
+## 400 `Tenant provided in token does not match resource token`
+
+The endpoint you connected belongs to a resource in a different Microsoft Entra tenant from the one that owns your
+subscription, for example a subsidiary's or a partner's tenant. The gateway always signs in to the tenant that bought the
+subscription, and Azure refuses a token from any other tenant. Connect a resource in your own tenant.
+
 ## 429 or 403 without an `error.code`
 
 You reached this key's per-minute (429) or monthly (403) token limit, or the monthly budget you set for the key. Wait

@@ -12,9 +12,10 @@ tokens through Microsoft Marketplace, the same as with an Azure AI Foundry conne
 | Gateway API | With Vertex AI |
 |---|---|
 | Chat completions (`/openai/v1/chat/completions`, also the legacy `/openai/deployments/{name}/chat/completions`) | ✅ Gemini and the other models on Vertex AI's OpenAI-compatible endpoint, streaming included |
+| Embeddings (`/openai/v1/embeddings`) | ✅ OpenAI format in and out; the gateway calls Vertex AI's native API (input: a string or up to 250 strings, optional `dimensions`) |
 | Routes (`x-dca-route`) and the United States data boundary (`x-dca-data-boundary: us`) | ✅ |
 | Tenant keys, per-key budgets, usage view and CSV export | ✅ |
-| Responses API, embeddings, Anthropic Messages API | ❌ refused with `422 not_supported_by_provider`, never forwarded |
+| Responses API, Anthropic Messages API | ❌ refused with `422 not_supported_by_provider`, never forwarded |
 
 ## Step 1: let the gateway call Vertex AI in your project
 
@@ -64,7 +65,9 @@ above.
    **United States location** (optional): `us` or a US region, used for requests with `x-dca-data-boundary: us`. Newer
    Gemini models are offered in `global` and the multi-regions, not in single regions.
 4. Map at least the default route to a Vertex AI model id, for example `google/gemini-3.8-flash`. A bare Gemini name gets
-   `google/` added. Models for the United States boundary go in the last column.
+   `google/` added. Map **embeddings** to an embedding model such as `google/gemini-embedding-001` (offered in `global` and
+   single regions, not in the `us`/`eu` multi-regions: for embeddings under the United States boundary, use a US region
+   such as `us-central1` as the United States location). Models for the United States boundary go in the last column.
 5. Select **Save and test**. Every mapped route is called once through the gateway with your own key.
 
 ## Use it
@@ -95,5 +98,6 @@ billed on the frontier tier; open models such as Gemma or Llama on the open-weig
 | 502 | `vertex_auth_failed` | Google refused the token exchange. The `google` field holds Google's code, for example `invalid_target` (pool or provider not found) or `invalid_grant` (audience or attribute condition) | Check step 1: project number, pool and provider IDs, allowed audience, attribute condition |
 | 403 | `PERMISSION_DENIED` (from Vertex AI) | The pool principal has no Vertex AI role, or the API is disabled | The role binding in step 1; allow a few minutes after a change |
 | 404 | (from Vertex AI) | The model is not available in that location, or not enabled in your project | Use a model id your project can call, in a location that offers it |
-| 422 | `not_supported_by_provider` | Responses API, embeddings or the Anthropic API on a Vertex AI connection | Use chat completions |
+| 422 | `not_supported_by_provider` | Responses API or the Anthropic API on a Vertex AI connection | Use chat completions |
+| 400 | `invalid_input` | Embeddings input that is not a string or a list of 1 to 250 strings (token arrays are not supported) | Send text |
 | 422 | `no_eligible_provider` | `x-dca-data-boundary: us` and no model is declared for the United States boundary | Fill the last column, and set a United States location |

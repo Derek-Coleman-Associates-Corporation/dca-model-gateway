@@ -7,8 +7,9 @@
 | OpenAI v1 and Azure OpenAI | `https://ai-gateway-east-us1.azure-api.net/gateway` | `api-key: <gateway key>` |
 | Anthropic Messages | `https://ai-gateway-east-us1.azure-api.net/gateway/anthropic` | `x-api-key: <gateway key>` |
 
-Keep the key in a header. The gateway also accepts it as the `subscription-key` query parameter, but URLs tend to end up in
-logs. The OpenAI SDKs send their `api_key` as `Authorization: Bearer`, so add `default_headers={"api-key": key}` as the
+Keep the key in a header. The gateway also accepts it as the `subscription-key` query parameter (it removes the key before
+forwarding the request and hides it in its own logs), but URLs tend to end up in logs on your side, such as proxies and
+browser history. The OpenAI SDKs send their `api_key` as `Authorization: Bearer`, so add `default_headers={"api-key": key}` as the
 samples do. The Azure OpenAI and Anthropic SDKs already use the right header.
 
 ## Endpoints

@@ -75,9 +75,10 @@ What these values are:
 
 Gemini and the managed open-weight models (ids ending in `-maas`, such as the ones listed above) work as soon as the Vertex AI
 API is enabled. Llama needs its license accepted in Model Garden first; Mistral models use a different Vertex AI API that the
-gateway does not call yet. Not every model is offered in every location: the open-weight models above are offered in `global`.
-For the United States boundary, `openai/gpt-oss-120b-maas` is offered in `us-central1` and the Qwen3 model in `us-south1`,
-not in the `us` multi-region that newer Gemini models need; a connection has one United States location. If your
+gateway does not call yet. Not every model is offered in every location: the open-weight models above are offered in `global`;
+Llama 4 Maverick only in `us-east5`. For the United States boundary, `openai/gpt-oss-120b-maas` is offered in `us-central1`
+and the Qwen3 model in `us-south1`, not in the `us` multi-region that newer Gemini models need. A route can therefore name its
+own location (see step 3). If your
 organization restricts workload identity providers (`constraints/iam.workloadIdentityPoolProviders`), allow the issuer
 `https://sts.windows.net/<your tenant>/`.
 
@@ -106,7 +107,10 @@ gcloud projects remove-iam-policy-binding $PROJECT_ID --role projects/$PROJECT_I
    **United States location** (optional): `us` or a US region, used for requests with `x-dca-data-boundary: us`. Newer
    Gemini models are offered in `global` and the multi-regions, not in single regions.
 4. Map at least the default route to a Vertex AI model id, for example `google/gemini-3.8-flash`. A bare Gemini name gets
-   `google/` added. Map **embeddings** to an embedding model such as `google/gemini-embedding-001` (offered in `global` and
+   `google/` added. A model offered only in a region can carry its own location, `location:publisher/model`: for example
+   `us-east5:meta/llama-4-maverick-17b-128e-instruct-maas` on the `oss-only` route goes to us-east5 while the other routes stay
+   in the connection's location. In the column for the United States boundary, only United States locations are accepted
+   (`us-central1:openai/gpt-oss-120b-maas`), and a request is never sent outside the United States. Map **embeddings** to an embedding model such as `google/gemini-embedding-001` (offered in `global` and
    single regions, not in the `us`/`eu` multi-regions: for embeddings under the United States boundary, use a US region
    such as `us-central1` as the United States location). Models for the United States boundary go in the last column.
 5. Select **Save and test**. Every mapped route is called once through the gateway with your own key.

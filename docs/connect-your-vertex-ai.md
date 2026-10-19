@@ -13,11 +13,13 @@ tokens through Microsoft Marketplace, the same as with an Azure AI Foundry conne
 
 | Gateway API | With Vertex AI |
 |---|---|
-| Chat completions (`/openai/v1/chat/completions`, also the legacy `/openai/deployments/{name}/chat/completions`) | ✅ Gemini and the other models on Vertex AI's OpenAI-compatible endpoint, streaming included |
+| Chat completions (`/openai/v1/chat/completions`, also the legacy `/openai/deployments/{name}/chat/completions`) | ✅ Gemini and the open-weight models on Vertex AI's OpenAI-compatible endpoint, streaming included |
+| Open-weight models (Model Garden managed APIs, ids ending in `-maas`) | ✅ for example `openai/gpt-oss-120b-maas`, `deepseek-ai/deepseek-v3.2-maas`, `qwen/qwen3-235b-a22b-instruct-2507-maas`, `zai-org/glm-4.7-maas`; billed on the open-weight tier |
 | Embeddings (`/openai/v1/embeddings`) | ✅ OpenAI format in and out; the gateway calls Vertex AI's native API (input: a string or up to 250 strings, optional `dimensions`) |
 | Routes (`x-dca-route`) and the United States data boundary (`x-dca-data-boundary: us`) | ✅ |
 | Tenant keys, per-key budgets, usage view and CSV export | ✅ |
-| Responses API, Anthropic Messages API | ❌ refused with `422 not_supported_by_provider`, never forwarded |
+| Responses API | ❌ refused with `422 not_supported_by_provider`, never forwarded |
+| Anthropic Messages API | ⏳ not supported yet (Claude through Vertex AI is in testing). Without a mapped Claude model a request is refused with `422 route_not_configured` |
 
 ## Step 1: add the connector to your tenant
 
@@ -71,8 +73,11 @@ What these values are:
 | `api://7154fd27-…` | The token's audience: the DCA Model Gateway Connector application |
 | `7154fd27-…` (subject) | The connector's application ID. With the issuer, the provider accepts **only** tokens your tenant issues to the connector |
 
-Gemini models work as soon as the Vertex AI API is enabled. Other Model Garden models (for example Llama or Claude) must be
-enabled in your project first; Mistral models use a different Vertex AI API that the gateway does not call yet. If your
+Gemini and the managed open-weight models (ids ending in `-maas`, such as the ones listed above) work as soon as the Vertex AI
+API is enabled. Llama needs its license accepted in Model Garden first; Mistral models use a different Vertex AI API that the
+gateway does not call yet. Not every model is offered in every location: the open-weight models above are offered in `global`.
+For the United States boundary, `openai/gpt-oss-120b-maas` is offered in `us-central1` and the Qwen3 model in `us-south1`,
+not in the `us` multi-region that newer Gemini models need; a connection has one United States location. If your
 organization restricts workload identity providers (`constraints/iam.workloadIdentityPoolProviders`), allow the issuer
 `https://sts.windows.net/<your tenant>/`.
 
@@ -137,6 +142,7 @@ billed on the frontier tier; open models such as Gemma or Llama on the open-weig
 | 502 | `vertex_auth_failed` | Google refused the token exchange. The `google` field holds Google's code, for example `invalid_target` (pool or provider not found), `invalid_grant` (issuer or audience) or `unauthorized_client` (attribute condition) | Check step 2: project number, pool and provider IDs, the issuer (your tenant), audience and attribute condition |
 | 403 | `PERMISSION_DENIED` (from Vertex AI) | The pool principal has no Vertex AI role, or the API is disabled | The role binding in step 2; allow a few minutes after a change |
 | 404 | (from Vertex AI) | The model is not available in that location, or not enabled in your project | Use a model id your project can call, in a location that offers it |
-| 422 | `not_supported_by_provider` | Responses API or the Anthropic API on a Vertex AI connection | Use chat completions |
+| 422 | `not_supported_by_provider` | Responses API on a Vertex AI connection | Use chat completions |
 | 400 | `invalid_input` | Embeddings input that is not a string or a list of 1 to 250 strings (token arrays are not supported) | Send text |
 | 422 | `no_eligible_provider` | `x-dca-data-boundary: us` and no model is declared for the United States boundary | Fill the last column, and set a United States location |
+| 422 | `route_not_configured` | The route you asked for (for example `oss-only`) is not mapped. `oss-only` never falls back to the default model | Map the route on the Connect page |

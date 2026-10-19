@@ -53,8 +53,10 @@ is authoritative. Taxes and currency follow your Azure billing account.
 
 **Tier.** A request counts as *open-weight* when its deployment serves an open-weight model family (for example Llama,
 DeepSeek, gpt-oss, Mistral, Phi, Qwen, Gemma); everything else, including GPT and Claude models, counts as *frontier*. The
-gateway takes the model name each deployment reported in your last connection test, shown in the **Billing tier** column. For
-a deployment the test has not called, it uses the deployment's name.
+gateway takes the model name each deployment reported in your last connection test, shown in the **Billing tier** column. A
+deployment the test has not called counts as *frontier*, so map and test every deployment you use (**Save and test** on the
+Connect page). For Google Vertex AI the model id itself decides: Gemini and Claude are frontier, open models such as Gemma,
+Llama or Mistral are open-weight.
 
 **Active tenants.** An active tenant is a key, the Default key included, that routed at least one token in the
 subscription's monthly billing period. Keys that are never used are free. Beyond the plan's included number, each

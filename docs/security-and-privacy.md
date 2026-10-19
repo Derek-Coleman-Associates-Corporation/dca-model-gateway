@@ -7,6 +7,10 @@
 - **The tenant is fixed.** A connection always uses the Microsoft Entra tenant that owns the subscription, taken from your
   sign-in, never typed in. A token issued by your tenant cannot open another organization's resources, and theirs cannot
   open yours.
+- **Google Vertex AI works the same way.** For a Vertex AI connection, your Google workload identity provider trusts only
+  tokens that your own Microsoft Entra tenant issues to the connector. Google refuses a connection saved under another
+  organization's tenant, even one that names your project, pool and provider. See
+  [Connect your Vertex AI](connect-your-vertex-ai.md).
 - **Stop at any time.** **Disconnect** on the Connect your Foundry page stops the gateway at once. Disabling or deleting the
   connector's enterprise application in your tenant stops it within five minutes. Removing its role assignment also ends
   access, but Azure can take hours to apply that: we measured more than two and a half hours.
@@ -26,7 +30,7 @@ Administrator. See [Connect your Foundry](connect-your-foundry.md#step-2-give-th
 
 | Data | Where | Kept |
 |---|---|---|
-| Your connection: tenant ID, endpoint, deployment names, per-key budgets, last test result | Azure Storage, East US, encrypted at rest, Entra-only access | While the subscription is active; deleted within an hour of cancellation |
+| Your connection: tenant ID, endpoint and deployment names (Vertex AI: project ID and number, pool and provider IDs, locations, model IDs), per-key budgets, last test result | Azure Storage, East US, encrypted at rest, Entra-only access | While the subscription is active; deleted within an hour of cancellation |
 | Key names you choose | Azure API Management, East US | With the key; deleted on an erasure request |
 | Per-request telemetry: key ID, route, deployment name, data boundary, token counts, time | Azure Monitor, United States | 90 days |
 | Usage reported to Microsoft Marketplace for billing | Microsoft Marketplace, plus our billing audit records | As required for invoicing and audit |
@@ -37,7 +41,8 @@ bodies, and caches none for connected Foundry deployments.
 
 ## Where requests go
 
-Your request travels over TLS to the gateway (Azure API Management, East US), then over TLS to your Foundry endpoint. Model
+Your request travels over TLS to the gateway (Azure API Management, East US), then over TLS to your Foundry endpoint or to
+Google Vertex AI in your project. Model
 inference runs in your deployment, in the region or data zone of that deployment's type. Use `x-dca-data-boundary: us`
 together with US data-zone deployments to keep processing in the United States; see
 [Data boundary](api-reference.md#data-boundary).

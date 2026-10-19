@@ -1,8 +1,10 @@
 # Connect your Google Vertex AI
 
 DCA Model Gateway can send requests to **Gemini and the other models you use in Google Vertex AI**, in your own Google
-Cloud project. No key is created or shared: the gateway exchanges its own Microsoft Entra managed-identity token at Google
-for a short-lived token of a workload identity pool that you control, and Vertex AI checks your IAM policy on every call.
+Cloud project. No key is created or shared. Your own Microsoft Entra tenant issues a short-lived token to the DCA Model
+Gateway Connector; the gateway exchanges it at Google for a short-lived token of a workload identity pool that you control,
+and Vertex AI checks your IAM policy on every call. Your provider trusts only tokens from **your** tenant, so no other
+organization's connection can reach your project, even one that names your project, pool and provider.
 
 Your project's model usage is billed by Google on your own billing account. DCA Model Gateway bills its plan and routed
 tokens through Microsoft Marketplace, the same as with an Azure AI Foundry connection.
@@ -17,28 +19,46 @@ tokens through Microsoft Marketplace, the same as with an Azure AI Foundry conne
 | Tenant keys, per-key budgets, usage view and CSV export | ✅ |
 | Responses API, Anthropic Messages API | ❌ refused with `422 not_supported_by_provider`, never forwarded |
 
-## Step 1: let the gateway call Vertex AI in your project
+## Step 1: add the connector to your tenant
+
+Google will trust only tokens that your Microsoft Entra tenant issues to the **DCA Model Gateway Connector**, so the
+connector must exist in your tenant. It holds no secrets: only DCA Model Gateway can act as it. This needs an administrator
+who may add enterprise applications (Global Administrator, Application Administrator or Cloud Application Administrator).
+
+- **Admin consent link.** On the portal's **Connect your Foundry** page, **Google Vertex AI** tab, select **Grant admin
+  consent** and accept for your organization. You come back to the page with a confirmation.
+- **Azure CLI** (for example in Azure Cloud Shell):
+
+  ```bash
+  az ad sp create --id 7154fd27-4506-4cd5-8e3a-b2e5208d0846
+  ```
+
+If you already connected an Azure AI Foundry, the connector is in your tenant already.
+
+## Step 2: let the connector call Vertex AI in your project
 
 Run once, as someone who can manage IAM in the project (Owner, or Role Administrator, Workload Identity Pool Admin and
-Project IAM Admin), for example in Cloud Shell. The last two commands grant a custom role with one permission,
+Project IAM Admin), for example in Cloud Shell. `TENANT_ID` is your Microsoft Entra tenant: the tenant of the Marketplace
+subscription, shown on the portal's Connect page. The last two commands grant a custom role with one permission,
 `aiplatform.endpoints.predict`: the gateway can call models and nothing else.
 
 ```bash
 PROJECT_ID=your-project-id
+TENANT_ID=your-entra-tenant-id
 PROJECT_NUMBER=$(gcloud projects describe $PROJECT_ID --format='value(projectNumber)')
 gcloud services enable aiplatform.googleapis.com sts.googleapis.com iamcredentials.googleapis.com --project $PROJECT_ID
 gcloud iam workload-identity-pools create dca-model-gateway --project $PROJECT_ID --location global \
   --display-name "DCA Model Gateway"
 gcloud iam workload-identity-pools providers create-oidc dca-gateway --project $PROJECT_ID --location global \
   --workload-identity-pool dca-model-gateway \
-  --issuer-uri "https://sts.windows.net/a42a9fb4-e76a-4b34-b070-3bf3687022f0/" \
+  --issuer-uri "https://sts.windows.net/$TENANT_ID/" \
   --allowed-audiences "api://7154fd27-4506-4cd5-8e3a-b2e5208d0846" \
-  --attribute-mapping "google.subject=assertion.sub" \
-  --attribute-condition "assertion.sub == 'd1567b77-2a75-49a5-9c0b-2593c8a6488a'"
+  --attribute-mapping "google.subject=assertion.appid" \
+  --attribute-condition "assertion.appid == '7154fd27-4506-4cd5-8e3a-b2e5208d0846' && assertion.tid == '$TENANT_ID'"
 gcloud iam roles create dcaModelGatewayInference --project $PROJECT_ID --title "DCA Model Gateway Inference" \
   --permissions aiplatform.endpoints.predict --stage GA
 gcloud projects add-iam-policy-binding $PROJECT_ID --role projects/$PROJECT_ID/roles/dcaModelGatewayInference \
-  --member "principal://iam.googleapis.com/projects/$PROJECT_NUMBER/locations/global/workloadIdentityPools/dca-model-gateway/subject/d1567b77-2a75-49a5-9c0b-2593c8a6488a"
+  --member "principal://iam.googleapis.com/projects/$PROJECT_NUMBER/locations/global/workloadIdentityPools/dca-model-gateway/subject/7154fd27-4506-4cd5-8e3a-b2e5208d0846"
 ```
 
 The built-in **Vertex AI User** role (`roles/aiplatform.user`) also works, but it allows much more than calling models.
@@ -47,20 +67,36 @@ What these values are:
 
 | Value | Meaning |
 |---|---|
-| `https://sts.windows.net/a42a9fb4-…/` | The Microsoft Entra tenant of Derek Coleman & Associates, which issues the gateway's token |
+| `https://sts.windows.net/<your tenant>/` | Your own Microsoft Entra tenant, which issues the connector's token. The gateway asks only the tenant of your Marketplace subscription, taken from your sign-in; it is never typed in |
 | `api://7154fd27-…` | The token's audience: the DCA Model Gateway Connector application |
-| `d1567b77-…` | The gateway's managed identity. The attribute condition makes the provider accept **only** this identity |
+| `7154fd27-…` (subject) | The connector's application ID. With the issuer, the provider accepts **only** tokens your tenant issues to the connector |
 
 Gemini models work as soon as the Vertex AI API is enabled. Other Model Garden models (for example Llama or Claude) must be
 enabled in your project first; Mistral models use a different Vertex AI API that the gateway does not call yet. If your
 organization restricts workload identity providers (`constraints/iam.workloadIdentityPoolProviders`), allow the issuer
-above.
+`https://sts.windows.net/<your tenant>/`.
 
-## Step 2: connect it on the portal
+### Set up before October 18, 2026?
+
+Earlier versions of this guide had the provider trust DCA's tenant and the gateway's managed identity. The gateway no
+longer presents that token, so that setup no longer works for anyone. Update the provider and the role binding:
+
+```bash
+gcloud iam workload-identity-pools providers update-oidc dca-gateway --project $PROJECT_ID --location global \
+  --workload-identity-pool dca-model-gateway --issuer-uri "https://sts.windows.net/$TENANT_ID/" \
+  --attribute-mapping "google.subject=assertion.appid" \
+  --attribute-condition "assertion.appid == '7154fd27-4506-4cd5-8e3a-b2e5208d0846' && assertion.tid == '$TENANT_ID'"
+gcloud projects add-iam-policy-binding $PROJECT_ID --role projects/$PROJECT_ID/roles/dcaModelGatewayInference \
+  --member "principal://iam.googleapis.com/projects/$PROJECT_NUMBER/locations/global/workloadIdentityPools/dca-model-gateway/subject/7154fd27-4506-4cd5-8e3a-b2e5208d0846"
+gcloud projects remove-iam-policy-binding $PROJECT_ID --role projects/$PROJECT_ID/roles/dcaModelGatewayInference \
+  --member "principal://iam.googleapis.com/projects/$PROJECT_NUMBER/locations/global/workloadIdentityPools/dca-model-gateway/subject/d1567b77-2a75-49a5-9c0b-2593c8a6488a"
+```
+
+## Step 3: connect it on the portal
 
 1. Open [saas.dcassociatesgroup.com](https://saas.dcassociatesgroup.com), **Subscriptions**, the subscription's menu,
    **Connect your Foundry**, then the **Google Vertex AI** tab.
-2. Enter the project ID and project number. Keep the pool and provider IDs from step 1 (`dca-model-gateway`, `dca-gateway`).
+2. Enter the project ID and project number. Keep the pool and provider IDs from step 2 (`dca-model-gateway`, `dca-gateway`).
 3. **Location**: `global` (Google may process the request in any location), the `us` or `eu` multi-region, or a region.
    **United States location** (optional): `us` or a US region, used for requests with `x-dca-data-boundary: us`. Newer
    Gemini models are offered in `global` and the multi-regions, not in single regions.
@@ -88,15 +124,18 @@ billed on the frontier tier; open models such as Gemma or Llama on the open-weig
 - **In your project**: remove the role binding (in our tests the gateway was refused about a minute later; Google allows up
   to seven), or disable the pool. Disabling or deleting only the provider stops new token exchanges, but tokens already
   issued stay valid until they expire; the gateway exchanges again at least every five minutes, so it loses access within
-  about five minutes. With `x-dca-data-boundary: us`, a connection without a United States location is refused, never sent
+  about five minutes.
+- **In your Microsoft Entra tenant**: disabling or deleting the DCA Model Gateway Connector's enterprise application also
+  stops new token exchanges, within about five minutes. With `x-dca-data-boundary: us`, a connection without a United States location is refused, never sent
   to the global endpoint.
 
 ## Errors you may see
 
 | Status | `error.code` | Meaning | Fix |
 |---|---|---|---|
-| 502 | `vertex_auth_failed` | Google refused the token exchange. The `google` field holds Google's code, for example `invalid_target` (pool or provider not found) or `invalid_grant` (audience or attribute condition) | Check step 1: project number, pool and provider IDs, allowed audience, attribute condition |
-| 403 | `PERMISSION_DENIED` (from Vertex AI) | The pool principal has no Vertex AI role, or the API is disabled | The role binding in step 1; allow a few minutes after a change |
+| 502 | `foundry_auth_failed` | Your Microsoft Entra tenant did not issue the connector's token. The `aadsts` field holds the code, for example `AADSTS700016` (the connector is not in your tenant) | Step 1 |
+| 502 | `vertex_auth_failed` | Google refused the token exchange. The `google` field holds Google's code, for example `invalid_target` (pool or provider not found), `invalid_grant` (issuer or audience) or `unauthorized_client` (attribute condition) | Check step 2: project number, pool and provider IDs, the issuer (your tenant), audience and attribute condition |
+| 403 | `PERMISSION_DENIED` (from Vertex AI) | The pool principal has no Vertex AI role, or the API is disabled | The role binding in step 2; allow a few minutes after a change |
 | 404 | (from Vertex AI) | The model is not available in that location, or not enabled in your project | Use a model id your project can call, in a location that offers it |
 | 422 | `not_supported_by_provider` | Responses API or the Anthropic API on a Vertex AI connection | Use chat completions |
 | 400 | `invalid_input` | Embeddings input that is not a string or a list of 1 to 250 strings (token arrays are not supported) | Send text |

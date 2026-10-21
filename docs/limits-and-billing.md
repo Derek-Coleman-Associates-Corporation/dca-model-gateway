@@ -56,7 +56,10 @@ DeepSeek, gpt-oss, Mistral, Phi, Qwen, Gemma); everything else, including GPT an
 gateway takes the model name each deployment reported in your last connection test, shown in the **Billing tier** column. A
 deployment the test has not called counts as *frontier*, so map and test every deployment you use (**Save and test** on the
 Connect page). For Google Vertex AI the model id itself decides: Gemini and Claude are frontier; open-weight models such as
-gpt-oss, DeepSeek, Qwen, GLM, Llama or Gemma are open-weight.
+gpt-oss, DeepSeek, Qwen, GLM, Llama or Gemma are open-weight. Only a valid answer in the connection test sets a tier: a
+throttled (429) or malformed answer leaves it unconfirmed (frontier) until a later test succeeds, and a tier never carries
+over when a deployment name is pointed at another endpoint or project. The `oss-only` route is enforced against this tier:
+it is refused (`422 not_open_weight`) unless the mapped deployment bills as open-weight.
 
 **Active tenants.** An active tenant is a key, the Default key included, that routed at least one token in the
 subscription's monthly billing period. Keys that are never used are free. Beyond the plan's included number, each

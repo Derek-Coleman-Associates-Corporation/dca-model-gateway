@@ -15,7 +15,7 @@ tokens through Microsoft Marketplace, the same as with an Azure AI Foundry conne
 |---|---|
 | Chat completions (`/openai/v1/chat/completions`, also the legacy `/openai/deployments/{name}/chat/completions`) | ✅ Gemini and the open-weight models on Vertex AI's OpenAI-compatible endpoint, streaming included |
 | Open-weight models (Model Garden managed APIs, ids ending in `-maas`) | ✅ for example `openai/gpt-oss-120b-maas`, `deepseek-ai/deepseek-v3.2-maas`, `qwen/qwen3-235b-a22b-instruct-2507-maas`, `zai-org/glm-4.7-maas`; billed on the open-weight tier |
-| Embeddings (`/openai/v1/embeddings`) | ✅ OpenAI format in and out; the gateway calls Vertex AI's native API (input: a string or up to 250 strings, optional `dimensions`) |
+| Embeddings (`/openai/v1/embeddings`) | ✅ OpenAI format in and out; the gateway calls Vertex AI's native API (input: a string or up to 250 strings, optional `dimensions`); when Vertex AI reports no token count, the gateway meters an estimate (4 characters per token) and marks it `usage.dca_estimated: true` |
 | Routes (`x-dca-route`) and the United States data boundary (`x-dca-data-boundary: us`) | ✅ |
 | Tenant keys, per-key budgets, usage view and CSV export | ✅ |
 | Responses API | ❌ refused with `422 not_supported_by_provider`, never forwarded |
@@ -148,5 +148,7 @@ billed on the frontier tier; open models such as Gemma or Llama on the open-weig
 | 404 | (from Vertex AI) | The model is not available in that location, or not enabled in your project | Use a model id your project can call, in a location that offers it |
 | 422 | `not_supported_by_provider` | Responses API on a Vertex AI connection | Use chat completions |
 | 400 | `invalid_input` | Embeddings input that is not a string or a list of 1 to 250 strings (token arrays are not supported) | Send text |
+| 502 | `invalid_upstream_response` | Vertex AI answered 200, but the embeddings response could not be validated (not one embedding per input, or vectors that are not numbers). Nothing was metered | Retry; if it persists, contact DCA support |
 | 422 | `no_eligible_provider` | `x-dca-data-boundary: us` and no model is declared for the United States boundary | Fill the last column, and set a United States location |
 | 422 | `route_not_configured` | The route you asked for (for example `oss-only`) is not mapped. `oss-only` never falls back to the default model | Map the route on the Connect page |
+| 422 | `not_open_weight` | `oss-only` is mapped to a model billed as frontier (for example a Gemini model) | Map an open-weight model (an id ending in `-maas`, or Gemma) to oss-only |

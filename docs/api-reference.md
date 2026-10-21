@@ -33,7 +33,10 @@ For the OpenAI-compatible endpoints, in this order:
 
 1. **`x-dca-route` header present**: the deployment you mapped to that route on the
    [Connect your Foundry](connect-your-foundry.md) page. The request's `model` is ignored. An unmapped route uses your default
-   deployment, except `oss-only`, which is refused.
+   deployment, except `oss-only`, which is refused. `oss-only` is a guarantee, not a label: it is also refused
+   (`422 not_open_weight`) when the deployment mapped to it is not billed on the open-weight tier (see
+   [Limits and billing](limits-and-billing.md)). `cheap` is the deployment you chose for that route, not an automatic price
+   comparison.
 2. **No route, `model` names a deployment**: that deployment of your resource. Any deployment of the connected resource can
    be named.
 3. **No route, no `model`**: your default deployment.
@@ -45,8 +48,8 @@ mapped to *Claude*, else the one named in `model`.
 
 | `x-dca-route` | Intended for | If you did not map it |
 |---|---|---|
-| `cheap` | Lowest-cost deployment, for example an open-weight model | Default deployment |
-| `oss-only` | Open-weight models only | `422 route_not_configured`; never sent to the default |
+| `cheap` | The lowest-cost deployment you chose (a mapping, not an automatic price comparison) | Default deployment |
+| `oss-only` | Open-weight models only; enforced: the mapped deployment must bill as open-weight, else `422 not_open_weight` | `422 route_not_configured`; never sent to the default |
 | `auto` | A model-router deployment that picks per request | Default deployment |
 | `reasoning` | A reasoning model | Default deployment |
 | `code` | A coding model | Default deployment |

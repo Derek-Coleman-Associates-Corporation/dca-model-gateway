@@ -89,7 +89,7 @@ choose **Connect your Foundry**.
    |---|---|---|
    | Default | Requests that name no model and no route | Required |
    | cheap | `x-dca-route: cheap` | Default deployment |
-   | oss-only | `x-dca-route: oss-only`, open-weight models only | **Refused (422)**, never sent to the default |
+   | oss-only | `x-dca-route: oss-only`, open-weight models only (enforced: the deployment must bill as open-weight, which a successful test records) | **Refused (422)**, never sent to the default |
    | auto | `x-dca-route: auto`, for example your model-router deployment | Default deployment |
    | reasoning | `x-dca-route: reasoning` | Default deployment |
    | code | `x-dca-route: code` | Default deployment |

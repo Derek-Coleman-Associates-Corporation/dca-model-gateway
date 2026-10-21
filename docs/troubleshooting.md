@@ -33,10 +33,12 @@ only through private endpoints are not supported.
 The deployment name in `model`, or in your mapping, does not exist on the connected resource. Names are case-sensitive and
 are the *deployment* names, not the model names.
 
-## 422 `route_not_configured` or `no_eligible_provider`
+## 422 `route_not_configured`, `not_open_weight` or `no_eligible_provider`
 
 - `route_not_configured`: the route you sent has no deployment and no fallback. `oss-only` never falls back to the default
   deployment.
+- `not_open_weight`: you sent `x-dca-route: oss-only`, and the deployment mapped to it is billed as frontier, or its tier is
+  not confirmed yet. Map an open-weight deployment, or run **Save and test** so the deployment's model is recorded.
 - `no_eligible_provider`: you sent `x-dca-data-boundary: us`, and no deployment is declared for the United States boundary
   for that request.
 

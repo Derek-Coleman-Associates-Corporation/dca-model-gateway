@@ -11,6 +11,9 @@
   tokens that your own Microsoft Entra tenant issues to the connector. Google refuses a connection saved under another
   organization's tenant, even one that names your project, pool and provider. See
   [Connect your Vertex AI](connect-your-vertex-ai.md).
+- **Within your organisation.** For Azure AI Foundry, any subscription of your tenant can connect any resource the connector has
+  a role on: the role assignment is the boundary, and it is tenant-wide. For Google Vertex AI the boundary is per subscription:
+  the provider in your project is named after the subscription, and the gateway accepts no other name for it.
 - **Stop at any time.** **Disconnect** on the Connect your Foundry page stops the gateway at once. Disabling or deleting the
   connector's enterprise application in your tenant stops it within five minutes. Removing its role assignment also ends
   access, but Azure can take hours to apply that: we measured more than two and a half hours.

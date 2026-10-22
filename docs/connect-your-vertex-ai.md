@@ -41,17 +41,21 @@ If you already connected an Azure AI Foundry, the connector is in your tenant al
 
 Run once, as someone who can manage IAM in the project (Owner, or Role Administrator, Workload Identity Pool Admin and
 Project IAM Admin), for example in Cloud Shell. `TENANT_ID` is your Microsoft Entra tenant: the tenant of the Marketplace
-subscription, shown on the portal's Connect page. The last two commands grant a custom role with one permission,
-`aiplatform.endpoints.predict`: the gateway can call models and nothing else.
+subscription, shown on the portal's Connect page. `PROVIDER_ID` is also shown there: `dca-gateway-` followed by the first eight
+characters of your subscription's id. The gateway accepts no other provider name for that subscription, so creating the
+provider is how your project admits exactly this subscription; another subscription of your organisation needs its own. The
+last two commands grant a custom role with one permission, `aiplatform.endpoints.predict`: the gateway can call models and
+nothing else.
 
 ```bash
 PROJECT_ID=your-project-id
 TENANT_ID=your-entra-tenant-id
+PROVIDER_ID=dca-gateway-xxxxxxxx      # from the Connect page
 PROJECT_NUMBER=$(gcloud projects describe $PROJECT_ID --format='value(projectNumber)')
 gcloud services enable aiplatform.googleapis.com sts.googleapis.com iamcredentials.googleapis.com --project $PROJECT_ID
 gcloud iam workload-identity-pools create dca-model-gateway --project $PROJECT_ID --location global \
   --display-name "DCA Model Gateway"
-gcloud iam workload-identity-pools providers create-oidc dca-gateway --project $PROJECT_ID --location global \
+gcloud iam workload-identity-pools providers create-oidc $PROVIDER_ID --project $PROJECT_ID --location global \
   --workload-identity-pool dca-model-gateway \
   --issuer-uri "https://sts.windows.net/$TENANT_ID/" \
   --allowed-audiences "api://7154fd27-4506-4cd5-8e3a-b2e5208d0846" \
@@ -72,6 +76,7 @@ What these values are:
 | `https://sts.windows.net/<your tenant>/` | Your own Microsoft Entra tenant, which issues the connector's token. The gateway asks only the tenant of your Marketplace subscription, taken from your sign-in; it is never typed in |
 | `api://7154fd27-…` | The token's audience: the DCA Model Gateway Connector application |
 | `7154fd27-…` (subject) | The connector's application ID. With the issuer, the provider accepts **only** tokens your tenant issues to the connector |
+| `dca-gateway-xxxxxxxx` | The provider's name, derived from your subscription's id. The gateway uses it only for that subscription, so the project admits one subscription per provider |
 
 Gemini and the managed open-weight models (ids ending in `-maas`, such as the ones listed above) work as soon as the Vertex AI
 API is enabled. Llama needs its license accepted in Model Garden first; Mistral models use a different Vertex AI API that the
@@ -84,12 +89,13 @@ organization restricts workload identity providers (`constraints/iam.workloadIde
 
 ### Set up before October 18, 2026?
 
-Earlier versions of this guide had the provider trust DCA's tenant and the gateway's managed identity. The gateway no
-longer presents that token, so that setup no longer works for anyone. Update the provider and the role binding:
+Earlier versions of this guide had a provider named `dca-gateway` trust DCA's tenant and the gateway's managed identity. The
+gateway no longer presents that token and now accepts only the provider named after your subscription, so that setup no
+longer works for anyone. Create the new provider, bind it, and remove the old binding (the old provider can be deleted):
 
 ```bash
-gcloud iam workload-identity-pools providers update-oidc dca-gateway --project $PROJECT_ID --location global \
-  --workload-identity-pool dca-model-gateway --issuer-uri "https://sts.windows.net/$TENANT_ID/" \
+gcloud iam workload-identity-pools providers create-oidc $PROVIDER_ID --project $PROJECT_ID --location global \
+  --workload-identity-pool dca-model-gateway --issuer-uri "https://sts.windows.net/$TENANT_ID/" --allowed-audiences "api://7154fd27-4506-4cd5-8e3a-b2e5208d0846" \
   --attribute-mapping "google.subject=assertion.appid" \
   --attribute-condition "assertion.appid == '7154fd27-4506-4cd5-8e3a-b2e5208d0846' && assertion.tid == '$TENANT_ID'"
 gcloud projects add-iam-policy-binding $PROJECT_ID --role projects/$PROJECT_ID/roles/dcaModelGatewayInference \
@@ -102,7 +108,7 @@ gcloud projects remove-iam-policy-binding $PROJECT_ID --role projects/$PROJECT_I
 
 1. Open [saas.dcassociatesgroup.com](https://saas.dcassociatesgroup.com), **Subscriptions**, the subscription's menu,
    **Connect your Foundry**, then the **Google Vertex AI** tab.
-2. Enter the project ID and project number. Keep the pool and provider IDs from step 2 (`dca-model-gateway`, `dca-gateway`).
+2. Enter the project ID and project number. Keep the pool ID from step 2 (`dca-model-gateway`); the provider ID is fixed for the subscription.
 3. **Location**: `global` (Google may process the request in any location), the `us` or `eu` multi-region, or a region.
    **United States location** (optional): `us` or a US region, used for requests with `x-dca-data-boundary: us`. Newer
    Gemini models are offered in `global` and the multi-regions, not in single regions.

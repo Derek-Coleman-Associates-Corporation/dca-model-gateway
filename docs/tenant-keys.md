@@ -56,8 +56,10 @@ subscription cancels all of its keys.
 
 ## Usage and export
 
-- Choose a month under **Usage for** and select **Show** to see each key's tokens in that month (the last six months are
-  available).
+- Choose a month under **Usage for** and select **Show** to see each key's tokens in that month. Usage is kept for
+  **90 days** (see [Security and privacy](security-and-privacy.md)), so the list offers the current month and the two or three
+  before it; the oldest one is marked *partly retained* when its first days have already aged out. Figures update hourly (UTC)
+  and the current hour is incomplete.
 - **Download usage (CSV)** exports the chosen month with one row per day, key, deployment, route and data boundary:
 
   | Column | Meaning |

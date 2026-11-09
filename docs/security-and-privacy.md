@@ -63,3 +63,5 @@ together with US data-zone deployments to keep processing in the United States; 
 
 - Privacy notice: <https://www.dcassociatesgroup.com/privacy>
 - Reporting a vulnerability: [SECURITY.md](../SECURITY.md)
+
+**Marketing consent.** The optional product-news choice is recorded per subscription at activation and can be changed on the portal's **preferences** page (header link) at any time; every change is appended to the consent record and a withdrawal is effective immediately. Nothing else on the portal depends on it.

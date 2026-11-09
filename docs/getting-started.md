@@ -41,6 +41,10 @@ Your endpoint is `https://ai-gateway-east-us1.azure-api.net/gateway`. This first
 **More keys.** Choose **Tenant keys** in the same menu to give each of your own customers or applications its own key, with
 its own budget and usage. See [Tenant keys](tenant-keys.md).
 
+**E-mail from us.** You receive service e-mail about your subscription (activation, keys, billing, security notices). Product
+news is optional: the checkbox at activation, and **preferences** in the portal header, where you can allow or withdraw it at any
+time per subscription. Withdrawals take effect immediately and are kept in your consent record.
+
 **Rotating a key.** Choose **Regenerate gateway key** again (or **Regenerate** next to any key on the Tenant keys page). The
 new key works immediately and the previous key stops working at the same moment, so update your applications first if you
 need a seamless switch.

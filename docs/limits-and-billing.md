@@ -1,5 +1,7 @@
 # Limits and billing
 
+**Starter ($79/month): Marketplace publication is in progress.** Runtime limits are configured; wait for Starter to appear as purchasable in Marketplace. Checkout is authoritative. Starter initially supports new subscriptions and renewals; in-place changes to or from Starter are blocked pending billing-period migration support. Contact DCAI before migrating an existing subscription.
+
 ## Per-key limits
 
 Each gateway key has two limits. They protect your Foundry and your bill from runaway clients. Every key of a subscription
@@ -7,6 +9,7 @@ has its own counters, so one busy tenant cannot use up another tenant's allowanc
 
 | Plan | Tokens per minute | Tokens per calendar month |
 |---|---|---|
+| Starter | 30,000 | 100,000,000 |
 | Team | 60,000 | 500,000,000 |
 | Partner Edition | 120,000 | 2,500,000,000 |
 
@@ -26,6 +29,7 @@ Your deployments keep their own quotas in Azure as well. Whichever limit is lowe
 
 | Plan | Keys (the Default key included) | Active tenants included each month |
 |---|---|---|
+| Starter | 3 | 1 |
 | Team | 25 | 5 |
 | Partner Edition | 100 | 25 |
 
@@ -42,10 +46,11 @@ You receive two separate charges:
 
 | Plan | Monthly fee | Included each month | Beyond the included amount |
 |---|---|---|---|
+| Starter | US$79 | 20M open-weight and 5M frontier routed tokens; 1 active tenant | US$0.25 per 1M open-weight, US$0.60 per 1M frontier; US$15 per additional active tenant |
 | Team | US$199 | 200M open-weight and 25M frontier routed tokens; 5 active tenants | US$0.25 per 1M open-weight, US$0.60 per 1M frontier; US$15 per additional active tenant |
 | Partner Edition | US$499 | 1,000M open-weight and 100M frontier routed tokens; 25 active tenants | Same rates |
 
-Prices as listed on 2026-10-15. The [Marketplace listing](https://azuremarketplace.microsoft.com/en-us/marketplace/apps/dcassociatesgroupinc.dca-model-gateway?tab=Overview)
+Starter contract configured November 12, 2026; existing Team/Partner prices retained. The [Marketplace listing](https://azuremarketplace.microsoft.com/en-us/marketplace/apps/dcassociatesgroupinc.dca-model-gateway?tab=Overview)
 is authoritative. Taxes and currency follow your Azure billing account.
 
 **Routed tokens** are the prompt and completion tokens of every request that reached your deployment. Refused requests

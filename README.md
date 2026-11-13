@@ -12,7 +12,7 @@ Foundry deployments in your Azure subscription, or Google Vertex AI in your Goog
   gateway uses the deployment you mapped to that route.
 - **Data boundary per request.** `x-dca-data-boundary: us` restricts a request to the deployments you declared as United
   States data zone deployments. Anything else is refused, never rerouted.
-- **A key per tenant.** Issue up to 3 keys (Starter, pending Marketplace publication), 25 keys (Team) or 100 keys (Partner Edition), one for each of your customers or
+- **A key per tenant.** Issue up to 3 keys (Starter), 25 keys (Team) or 100 keys (Partner Edition), one for each of your customers or
   applications. Each key has its own token budget and usage, and you can revoke one without touching the others.
 - **Token budgets.** Each gateway key has a per-minute token rate, a monthly token cap and, if you set one, your own monthly
   budget. Every response reports what is left.

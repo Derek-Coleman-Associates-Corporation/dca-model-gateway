@@ -1,6 +1,6 @@
 # Limits and billing
 
-**Starter ($79/month): Marketplace publication is in progress.** Runtime limits are configured; wait for Starter to appear as purchasable in Marketplace. Checkout is authoritative. Starter initially supports new subscriptions and renewals; in-place changes to or from Starter are blocked pending billing-period migration support. Contact DCAI before migrating an existing subscription.
+**Starter ($79/month) is available on Microsoft Marketplace as of November 13, 2026.** Checkout is authoritative. Starter initially supports new subscriptions and renewals; in-place changes to or from Starter are blocked pending billing-period migration support. Contact DCAI before migrating an existing subscription.
 
 ## Per-key limits
 
